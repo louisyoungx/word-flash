@@ -2,6 +2,8 @@
 
 一个简单而高效的英语单词闪卡应用，帮助用户快速记忆单词。
 
+🌐 [在线体验](https://word-flash-ruddy.vercel.app)
+
 ## 功能特点
 
 - 🎯 随机展示单词和释义
@@ -12,7 +14,7 @@
 
 ## 技术栈
 
-- React 18
+- React 19
 - TypeScript
 - TailwindCSS
 - Vite
