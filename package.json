@@ -3,15 +3,17 @@
     "version": "1.0.0",
     "private": true,
     "dependencies": {
+        "@tailwindcss/vite": "^4.1.4",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
+        "tailwindcss": "^4.1.4",
         "typescript": "^5.0.0"
     },
     "devDependencies": {
         "@types/react": "^18.2.0",
         "@types/react-dom": "^18.2.0",
-        "vite": "^4.0.0",
-        "@vitejs/plugin-react": "^4.0.0"
+        "@vitejs/plugin-react": "^4.0.0",
+        "vite": "^4.0.0"
     },
     "scripts": {
         "dev": "vite",
