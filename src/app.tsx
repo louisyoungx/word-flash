@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import words from './public/words.json'
 
 type Word = {
@@ -29,6 +29,34 @@ function App() {
         setShuffledWords(shuffled)
     }, [])
 
+    const handlePrev = useCallback(() => {
+        setCurrentIndex(
+            prev => (prev - 1 + shuffledWords.length) % shuffledWords.length
+        )
+    }, [shuffledWords.length])
+
+    const handleNext = useCallback(() => {
+        setCurrentIndex(prev => (prev + 1) % shuffledWords.length)
+    }, [shuffledWords.length])
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'ArrowLeft') {
+                handlePrev()
+            } else if (e.key === 'ArrowRight') {
+                handleNext()
+            } else if (e.key === ' ') {
+                e.preventDefault() // 防止空格键滚动页面
+                setAutoPlay(prev => !prev)
+            }
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [handlePrev, handleNext])
+
     useEffect(() => {
         let timer: number | undefined
 
@@ -43,19 +71,9 @@ function App() {
         }
     }, [autoPlay, interval, shuffledWords.length])
 
-    const handlePrev = () => {
-        setCurrentIndex(
-            prev => (prev - 1 + shuffledWords.length) % shuffledWords.length
-        )
-    }
-
-    const handleNext = () => {
-        setCurrentIndex(prev => (prev + 1) % shuffledWords.length)
-    }
-
-    const toggleAutoPlay = () => {
+    const toggleAutoPlay = useCallback(() => {
         setAutoPlay(prev => !prev)
-    }
+    }, [])
 
     const toggleSettings = () => {
         setShowSettings(prev => !prev)
