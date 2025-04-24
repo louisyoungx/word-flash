@@ -155,15 +155,15 @@ function App() {
 
     return (
         <div className='bg-white p-8 rounded-xl shadow-md min-w-[400px] max-w-[800px] w-full box-border relative'>
-            <div className='absolute top-2 right-2'>
+            <div className='absolute top-2 left-2'>
                 <button
                     onClick={toggleSettings}
-                    className='bg-transparent text-gray-600 hover:text-gray-800 hover:scale-110 transition-all cursor-pointer'
+                    className='bg-transparent text-gray-400 hover:text-gray-800 hover:scale-110 transition-all cursor-pointer'
                 >
                     <span className='material-icons'>settings</span>
                 </button>
                 {showSettings && (
-                    <div className='absolute top-full right-0 bg-white rounded-lg shadow-md p-4 min-w-[200px] z-50'>
+                    <div className='absolute top-full left-0 bg-white rounded-lg shadow-md p-4 min-w-[200px] z-50'>
                         <div className='mb-4'>
                             <label className='flex items-center gap-2 text-sm text-gray-700'>
                                 自动播放间隔（秒）:
@@ -208,11 +208,13 @@ function App() {
                 )}
             </div>
 
-            <div className='text-4xl font-bold text-center mb-4 break-words px-4 mt-4 flex items-center justify-center'>
-                {currentWord.en}
+            <div className='text-4xl font-bold text-center mb-4 break-words px-4 mt-4 relative'>
+                <div className='flex items-center justify-center'>
+                    <span>{currentWord.en}</span>
+                </div>
                 <button
                     onClick={speakWord}
-                    className='ml-2 p-2 text-gray-600 hover:text-gray-800 hover:scale-110 transition-all flex items-center justify-center w-10 h-10 cursor-pointer'
+                    className='absolute right-0 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800 hover:scale-110 transition-all flex items-center justify-center w-10 h-10 cursor-pointer'
                 >
                     <span className='material-icons'>
                         {isSpeaking ? 'graphic_eq' : 'volume_up'}
