@@ -10,7 +10,7 @@ function App() {
     const [shuffledWords, setShuffledWords] = useState<Word[]>([])
     const [currentIndex, setCurrentIndex] = useState(0)
     const [autoPlay, setAutoPlay] = useState(false)
-    const [interval, setInterval] = useState(3)
+    const [interval, setInterval] = useState(5)
     const [showMeaning, setShowMeaning] = useState(true)
     const [showSettings, setShowSettings] = useState(false)
 
@@ -130,6 +130,38 @@ function App() {
                 >
                     <span className='material-icons'>chevron_right</span>
                 </button>
+            </div>
+            <div className='flex justify-between items-center mb-2 text-sm text-gray-600'>
+                <span>
+                    {Math.round(
+                        ((currentIndex + 1) / shuffledWords.length) * 100
+                    )}
+                    %
+                </span>
+                {autoPlay && (
+                    <span className='text-gray-600'>
+                        预计:{' '}
+                        {Math.ceil(
+                            ((shuffledWords.length - currentIndex - 1) *
+                                interval) /
+                                60
+                        )}
+                        分钟
+                    </span>
+                )}
+                <span>
+                    {currentIndex + 1}/{shuffledWords.length}
+                </span>
+            </div>
+            <div className='w-full h-2 bg-gray-200 rounded-full overflow-hidden'>
+                <div
+                    className='h-full bg-blue-600 transition-all duration-300'
+                    style={{
+                        width: `${
+                            ((currentIndex + 1) / shuffledWords.length) * 100
+                        }%`,
+                    }}
+                />
             </div>
         </div>
     )
