@@ -122,42 +122,6 @@ function App() {
         setCurrentIndex(prev => (prev + 1) % shuffledWords.length)
     }, [shuffledWords.length])
 
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'ArrowLeft') {
-                handlePrev()
-            } else if (e.key === 'ArrowRight') {
-                handleNext()
-            } else if (e.key === ' ') {
-                e.preventDefault() // 防止空格键滚动页面
-                setAutoPlay(prev => !prev)
-            }
-        }
-
-        window.addEventListener('keydown', handleKeyDown)
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown)
-        }
-    }, [handlePrev, handleNext])
-
-    useEffect(() => {
-        let timer: number | undefined
-
-        if (autoPlay) {
-            timer = window.setInterval(() => {
-                setCurrentIndex(prev => (prev + 1) % shuffledWords.length)
-            }, interval * 1000)
-        }
-
-        return () => {
-            if (timer) clearInterval(timer)
-        }
-    }, [autoPlay, interval, shuffledWords.length])
-
-    const toggleAutoPlay = useCallback(() => {
-        setAutoPlay(prev => !prev)
-    }, [])
-
     const toggleSettings = () => {
         setShowSettings(prev => !prev)
     }
@@ -197,6 +161,57 @@ function App() {
         window.speechSynthesis.speak(utterance)
     }, [currentIndex, isSpeaking, shuffledWords])
 
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'ArrowLeft') {
+                handlePrev()
+            } else if (e.key === 'ArrowRight') {
+                handleNext()
+            } else if (e.key === 'ArrowUp') {
+                if (isSpeaking) {
+                    window.speechSynthesis.cancel()
+                    setIsSpeaking(false)
+                    return
+                }
+
+                const wordToSpeak = shuffledWords[currentIndex]?.en
+                if (!wordToSpeak) return
+
+                const utterance = new SpeechSynthesisUtterance(wordToSpeak)
+
+                // 设置语音参数
+                utterance.lang = 'en-US' // 设置为美国英语
+                utterance.rate = 1.2 // 加快语速
+                utterance.pitch = 1.0 // 正常音调
+
+                // 尝试找到男声
+                const voices = window.speechSynthesis.getVoices()
+                const maleVoice = voices.find(
+                    voice =>
+                        voice.lang === 'en-US' &&
+                        voice.name.toLowerCase().includes('male')
+                )
+                if (maleVoice) {
+                    utterance.voice = maleVoice
+                }
+
+                utterance.onend = () => setIsSpeaking(false)
+                utterance.onerror = () => setIsSpeaking(false)
+
+                setIsSpeaking(true)
+                window.speechSynthesis.speak(utterance)
+            } else if (e.key === ' ') {
+                e.preventDefault() // 防止空格键滚动页面
+                setAutoPlay(prev => !prev)
+            }
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [handlePrev, handleNext, currentIndex, isSpeaking, shuffledWords])
+
     // 处理自动发音
     useEffect(() => {
         if (!autoSpeak) return
@@ -227,6 +242,24 @@ function App() {
         setIsSpeaking(true)
         window.speechSynthesis.speak(utterance)
     }, [currentIndex, autoSpeak, shuffledWords])
+
+    useEffect(() => {
+        let timer: number | undefined
+
+        if (autoPlay) {
+            timer = window.setInterval(() => {
+                setCurrentIndex(prev => (prev + 1) % shuffledWords.length)
+            }, interval * 1000)
+        }
+
+        return () => {
+            if (timer) clearInterval(timer)
+        }
+    }, [autoPlay, interval, shuffledWords.length])
+
+    const toggleAutoPlay = useCallback(() => {
+        setAutoPlay(prev => !prev)
+    }, [])
 
     if (shuffledWords.length === 0) {
         return <div>Loading...</div>
