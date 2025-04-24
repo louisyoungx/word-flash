@@ -13,6 +13,8 @@ function App() {
     const [interval, setInterval] = useState(5)
     const [showMeaning, setShowMeaning] = useState(true)
     const [showSettings, setShowSettings] = useState(false)
+    const [isSpeaking, setIsSpeaking] = useState(false)
+    const [autoSpeak, setAutoSpeak] = useState(true)
 
     const formatRemainingTime = (minutes: number): string => {
         if (minutes < 60) {
@@ -79,6 +81,72 @@ function App() {
         setShowSettings(prev => !prev)
     }
 
+    const speakWord = useCallback(() => {
+        if (isSpeaking) {
+            window.speechSynthesis.cancel()
+            setIsSpeaking(false)
+            return
+        }
+
+        const wordToSpeak = shuffledWords[currentIndex]?.en
+        if (!wordToSpeak) return
+
+        const utterance = new SpeechSynthesisUtterance(wordToSpeak)
+
+        // 设置语音参数
+        utterance.lang = 'en-US' // 设置为美国英语
+        utterance.rate = 1.2 // 加快语速
+        utterance.pitch = 1.0 // 正常音调
+
+        // 尝试找到男声
+        const voices = window.speechSynthesis.getVoices()
+        const maleVoice = voices.find(
+            voice =>
+                voice.lang === 'en-US' &&
+                voice.name.toLowerCase().includes('male')
+        )
+        if (maleVoice) {
+            utterance.voice = maleVoice
+        }
+
+        utterance.onend = () => setIsSpeaking(false)
+        utterance.onerror = () => setIsSpeaking(false)
+
+        setIsSpeaking(true)
+        window.speechSynthesis.speak(utterance)
+    }, [currentIndex, isSpeaking, shuffledWords])
+
+    // 处理自动发音
+    useEffect(() => {
+        if (!autoSpeak) return
+
+        const wordToSpeak = shuffledWords[currentIndex]?.en
+        if (!wordToSpeak) return
+
+        const utterance = new SpeechSynthesisUtterance(wordToSpeak)
+
+        // 设置语音参数
+        utterance.lang = 'en-US'
+        utterance.rate = 1.2
+        utterance.pitch = 1.0
+
+        const voices = window.speechSynthesis.getVoices()
+        const maleVoice = voices.find(
+            voice =>
+                voice.lang === 'en-US' &&
+                voice.name.toLowerCase().includes('male')
+        )
+        if (maleVoice) {
+            utterance.voice = maleVoice
+        }
+
+        utterance.onend = () => setIsSpeaking(false)
+        utterance.onerror = () => setIsSpeaking(false)
+
+        setIsSpeaking(true)
+        window.speechSynthesis.speak(utterance)
+    }, [currentIndex, autoSpeak, shuffledWords])
+
     if (shuffledWords.length === 0) {
         return <div>Loading...</div>
     }
@@ -110,7 +178,7 @@ function App() {
                                 />
                             </label>
                         </div>
-                        <div>
+                        <div className='mb-4'>
                             <label className='flex items-center gap-2 text-sm text-gray-700'>
                                 <input
                                     type='checkbox'
@@ -123,12 +191,33 @@ function App() {
                                 显示释义
                             </label>
                         </div>
+                        <div>
+                            <label className='flex items-center gap-2 text-sm text-gray-700'>
+                                <input
+                                    type='checkbox'
+                                    checked={autoSpeak}
+                                    onChange={e =>
+                                        setAutoSpeak(e.target.checked)
+                                    }
+                                    className='w-4 h-4'
+                                />
+                                自动发音
+                            </label>
+                        </div>
                     </div>
                 )}
             </div>
 
             <div className='text-4xl font-bold text-center mb-4 break-words px-4 mt-4 flex items-center justify-center'>
                 {currentWord.en}
+                <button
+                    onClick={speakWord}
+                    className='ml-2 p-2 text-gray-600 hover:text-gray-800 hover:scale-110 transition-all flex items-center justify-center w-10 h-10 cursor-pointer'
+                >
+                    <span className='material-icons'>
+                        {isSpeaking ? 'graphic_eq' : 'volume_up'}
+                    </span>
+                </button>
             </div>
             {showMeaning && (
                 <div className='text-xl text-gray-600 text-center mb-8 break-words px-4 flex items-center justify-center'>
