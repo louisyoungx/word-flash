@@ -40,6 +40,7 @@ function App() {
         setRandomSeed('word_flash')
         setCurrentIndex(0)
         localStorage.clear()
+        setShowSettings(false)
     }
 
     // 保存设置到本地存储
@@ -307,7 +308,7 @@ function App() {
                                         onClick={() =>
                                             setShowMeaning(prev => !prev)
                                         }
-                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
                                             showMeaning
                                                 ? 'bg-blue-500'
                                                 : 'bg-gray-200'
@@ -330,7 +331,7 @@ function App() {
                                         onClick={() =>
                                             setAutoSpeak(prev => !prev)
                                         }
-                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
                                             autoSpeak
                                                 ? 'bg-blue-500'
                                                 : 'bg-gray-200'
@@ -361,7 +362,7 @@ function App() {
                                         />
                                         <button
                                             onClick={generateRandomSeed}
-                                            className='p-1.5 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors'
+                                            className='p-1.5 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors cursor-pointer'
                                             title='生成随机种子'
                                         >
                                             <span className='material-icons text-sm'>
@@ -373,7 +374,7 @@ function App() {
                                 <div className='pt-2 border-t border-gray-100'>
                                     <button
                                         onClick={resetAllSettings}
-                                        className='w-full py-2 px-4 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors text-sm flex items-center justify-center gap-2'
+                                        className='w-full py-2 px-4 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors text-sm flex items-center justify-center gap-2 cursor-pointer'
                                     >
                                         <span className='material-icons text-sm'>
                                             delete
