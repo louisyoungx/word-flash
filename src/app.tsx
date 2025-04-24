@@ -129,6 +129,8 @@ function App() {
 
     const speakWord = useCallback(() => {
         if (isSpeaking) {
+            window.speechSynthesis.cancel()
+            setIsSpeaking(false)
             return
         }
 
@@ -213,10 +215,11 @@ function App() {
 
     const handleWheel = useCallback(
         (e: React.WheelEvent) => {
-            e.preventDefault() // 防止页面滚动
             if (e.deltaX > 0) {
                 // 向右横向滚动，触发发音
-                speakWord()
+                if (!isSpeaking) {
+                    speakWord()
+                }
                 return
             }
             // 垂直滚动，切换单词
@@ -226,39 +229,14 @@ function App() {
                 handlePrev()
             }
         },
-        [handleNext, handlePrev, speakWord]
+        [handleNext, handlePrev, speakWord, isSpeaking]
     )
 
     // 处理自动发音
     useEffect(() => {
         if (!autoSpeak) return
-
-        const wordToSpeak = shuffledWords[currentIndex]?.en
-        if (!wordToSpeak) return
-
-        const utterance = new SpeechSynthesisUtterance(wordToSpeak)
-
-        // 设置语音参数
-        utterance.lang = 'en-US'
-        utterance.rate = 1.2
-        utterance.pitch = 1.0
-
-        const voices = window.speechSynthesis.getVoices()
-        const maleVoice = voices.find(
-            voice =>
-                voice.lang === 'en-US' &&
-                voice.name.toLowerCase().includes('male')
-        )
-        if (maleVoice) {
-            utterance.voice = maleVoice
-        }
-
-        utterance.onend = () => setIsSpeaking(false)
-        utterance.onerror = () => setIsSpeaking(false)
-
-        setIsSpeaking(true)
-        window.speechSynthesis.speak(utterance)
-    }, [currentIndex, autoSpeak, shuffledWords])
+        speakWord()
+    }, [currentIndex, autoSpeak])
 
     useEffect(() => {
         let timer: number | undefined
