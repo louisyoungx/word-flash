@@ -129,8 +129,6 @@ function App() {
 
     const speakWord = useCallback(() => {
         if (isSpeaking) {
-            window.speechSynthesis.cancel()
-            setIsSpeaking(false)
             return
         }
 
@@ -213,24 +211,23 @@ function App() {
         }
     }, [handlePrev, handleNext, currentIndex, isSpeaking, shuffledWords])
 
-    // 添加鼠标滚轮事件监听
-    useEffect(() => {
-        const handleWheel = (e: WheelEvent) => {
+    const handleWheel = useCallback(
+        (e: React.WheelEvent) => {
             e.preventDefault() // 防止页面滚动
+            if (e.deltaX > 0) {
+                // 向右横向滚动，触发发音
+                speakWord()
+                return
+            }
+            // 垂直滚动，切换单词
             if (e.deltaY < 0) {
-                // 向下滚动，显示下一个单词
                 handleNext()
             } else if (e.deltaY > 0) {
-                // 向上滚动，显示上一个单词
                 handlePrev()
             }
-        }
-
-        window.addEventListener('wheel', handleWheel, { passive: false })
-        return () => {
-            window.removeEventListener('wheel', handleWheel)
-        }
-    }, [handlePrev, handleNext])
+        },
+        [handleNext, handlePrev, speakWord]
+    )
 
     // 处理自动发音
     useEffect(() => {
@@ -288,7 +285,10 @@ function App() {
     const currentWord = shuffledWords[currentIndex]
 
     return (
-        <div className='bg-white p-8 rounded-xl shadow-md min-w-[400px] max-w-[800px] w-full box-border relative'>
+        <div
+            className='bg-white p-8 rounded-xl shadow-md min-w-[400px] max-w-[800px] w-full box-border relative'
+            onWheel={handleWheel}
+        >
             <div className='absolute top-2 left-2'>
                 <button
                     onClick={toggleSettings}
