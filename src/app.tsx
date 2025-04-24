@@ -14,6 +14,15 @@ function App() {
     const [showMeaning, setShowMeaning] = useState(true)
     const [showSettings, setShowSettings] = useState(false)
 
+    const formatRemainingTime = (minutes: number): string => {
+        if (minutes < 60) {
+            return `${minutes}分钟`
+        }
+        const hours = Math.floor(minutes / 60)
+        const remainingMinutes = minutes % 60
+        return `${hours} 小时 ${remainingMinutes} 分钟`
+    }
+
     useEffect(() => {
         // 打乱单词顺序
         const shuffled = [...words].sort(() => Math.random() - 0.5)
@@ -141,12 +150,13 @@ function App() {
                 {autoPlay && (
                     <span className='text-gray-600'>
                         预计:{' '}
-                        {Math.ceil(
-                            ((shuffledWords.length - currentIndex - 1) *
-                                interval) /
-                                60
+                        {formatRemainingTime(
+                            Math.ceil(
+                                ((shuffledWords.length - currentIndex - 1) *
+                                    interval) /
+                                    60
+                            )
                         )}
-                        分钟
                     </span>
                 )}
                 <span>
