@@ -8,14 +8,63 @@ type Word = {
 
 function App() {
     const [shuffledWords, setShuffledWords] = useState<Word[]>([])
-    const [currentIndex, setCurrentIndex] = useState(0)
+    const [currentIndex, setCurrentIndex] = useState(() => {
+        const saved = localStorage.getItem('currentIndex')
+        return saved ? Number(saved) : 0
+    })
     const [autoPlay, setAutoPlay] = useState(false)
-    const [interval, setInterval] = useState(5)
-    const [showMeaning, setShowMeaning] = useState(true)
+    const [interval, setInterval] = useState(() => {
+        const saved = localStorage.getItem('interval')
+        return saved ? Number(saved) : 5
+    })
+    const [showMeaning, setShowMeaning] = useState(() => {
+        const saved = localStorage.getItem('showMeaning')
+        return saved ? saved === 'true' : true
+    })
     const [showSettings, setShowSettings] = useState(false)
     const [isSpeaking, setIsSpeaking] = useState(false)
-    const [autoSpeak, setAutoSpeak] = useState(true)
-    const [randomSeed, setRandomSeed] = useState<string>('')
+    const [autoSpeak, setAutoSpeak] = useState(() => {
+        const saved = localStorage.getItem('autoSpeak')
+        return saved ? saved === 'true' : false
+    })
+    const [randomSeed, setRandomSeed] = useState<string>(() => {
+        const saved = localStorage.getItem('randomSeed')
+        return saved ? saved : 'word_flash'
+    })
+
+    // 重置所有设置
+    const resetAllSettings = () => {
+        setInterval(5)
+        setShowMeaning(true)
+        setAutoSpeak(false)
+        setRandomSeed('word_flash')
+        setCurrentIndex(0)
+        localStorage.clear()
+    }
+
+    // 保存设置到本地存储
+    useEffect(() => {
+        localStorage.setItem('interval', interval.toString())
+    }, [interval])
+
+    useEffect(() => {
+        localStorage.setItem('showMeaning', showMeaning.toString())
+    }, [showMeaning])
+
+    useEffect(() => {
+        localStorage.setItem('autoSpeak', autoSpeak.toString())
+    }, [autoSpeak])
+
+    useEffect(() => {
+        localStorage.setItem('randomSeed', randomSeed)
+    }, [randomSeed])
+
+    // 当随机种子不为空时，保存当前进度
+    useEffect(() => {
+        if (randomSeed) {
+            localStorage.setItem('currentIndex', currentIndex.toString())
+        }
+    }, [currentIndex, randomSeed])
 
     const generateRandomSeed = () => {
         const chars =
@@ -195,68 +244,113 @@ function App() {
                     <span className='material-icons'>settings</span>
                 </button>
                 {showSettings && (
-                    <div className='absolute top-full left-0 bg-white rounded-lg shadow-md p-4 min-w-[300px] z-50'>
-                        <div className='mb-4'>
-                            <label className='flex items-center gap-2 text-sm text-gray-700'>
-                                自动播放间隔（秒）:
-                                <input
-                                    type='number'
-                                    value={interval}
-                                    onChange={e =>
-                                        setInterval(Number(e.target.value))
-                                    }
-                                    min='1'
-                                    className='w-16 p-1 border border-gray-300 rounded text-sm'
-                                />
-                            </label>
+                    <>
+                        <div
+                            className='fixed inset-0 z-40'
+                            onClick={toggleSettings}
+                        />
+                        <div className='absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg p-4 min-w-[320px] z-50 border border-gray-100 animate-fade-in'>
+                            <div className='space-y-4'>
+                                <div className='flex items-center justify-between'>
+                                    <label className='text-sm text-gray-700'>
+                                        自动播放间隔（秒）
+                                    </label>
+                                    <input
+                                        type='number'
+                                        value={interval}
+                                        onChange={e =>
+                                            setInterval(Number(e.target.value))
+                                        }
+                                        min='1'
+                                        max='60'
+                                        className='w-20 px-2 py-1 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                                    />
+                                </div>
+                                <div className='flex items-center justify-between'>
+                                    <label className='text-sm text-gray-700'>
+                                        显示中文释义
+                                    </label>
+                                    <button
+                                        onClick={() =>
+                                            setShowMeaning(prev => !prev)
+                                        }
+                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                                            showMeaning
+                                                ? 'bg-blue-500'
+                                                : 'bg-gray-200'
+                                        }`}
+                                    >
+                                        <span
+                                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                                showMeaning
+                                                    ? 'translate-x-6'
+                                                    : 'translate-x-1'
+                                            }`}
+                                        />
+                                    </button>
+                                </div>
+                                <div className='flex items-center justify-between'>
+                                    <label className='text-sm text-gray-700'>
+                                        自动发音
+                                    </label>
+                                    <button
+                                        onClick={() =>
+                                            setAutoSpeak(prev => !prev)
+                                        }
+                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                                            autoSpeak
+                                                ? 'bg-blue-500'
+                                                : 'bg-gray-200'
+                                        }`}
+                                    >
+                                        <span
+                                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                                autoSpeak
+                                                    ? 'translate-x-6'
+                                                    : 'translate-x-1'
+                                            }`}
+                                        />
+                                    </button>
+                                </div>
+                                <div className='flex items-center justify-between'>
+                                    <label className='text-sm text-gray-700'>
+                                        随机种子
+                                    </label>
+                                    <div className='flex items-center gap-2'>
+                                        <input
+                                            type='text'
+                                            value={randomSeed}
+                                            onChange={e =>
+                                                setRandomSeed(e.target.value)
+                                            }
+                                            placeholder='输入种子'
+                                            className='w-24 px-2 py-1 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                                        />
+                                        <button
+                                            onClick={generateRandomSeed}
+                                            className='p-1.5 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors'
+                                            title='生成随机种子'
+                                        >
+                                            <span className='material-icons text-sm'>
+                                                refresh
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className='pt-2 border-t border-gray-100'>
+                                    <button
+                                        onClick={resetAllSettings}
+                                        className='w-full py-2 px-4 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors text-sm flex items-center justify-center gap-2'
+                                    >
+                                        <span className='material-icons text-sm'>
+                                            delete
+                                        </span>
+                                        重置全部设置
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div className='mb-4'>
-                            <label className='flex items-center gap-2 text-sm text-gray-700'>
-                                <input
-                                    type='checkbox'
-                                    checked={showMeaning}
-                                    onChange={e =>
-                                        setShowMeaning(e.target.checked)
-                                    }
-                                    className='w-4 h-4'
-                                />
-                                显示释义
-                            </label>
-                        </div>
-                        <div>
-                            <label className='flex items-center gap-2 text-sm text-gray-700'>
-                                <input
-                                    type='checkbox'
-                                    checked={autoSpeak}
-                                    onChange={e =>
-                                        setAutoSpeak(e.target.checked)
-                                    }
-                                    className='w-4 h-4'
-                                />
-                                自动发音
-                            </label>
-                        </div>
-                        <div>
-                            <label className='flex items-center gap-2 text-sm text-gray-700'>
-                                随机种子:
-                                <input
-                                    type='text'
-                                    value={randomSeed}
-                                    onChange={e =>
-                                        setRandomSeed(e.target.value)
-                                    }
-                                    placeholder='输入随机种子'
-                                    className='w-32 p-1 border border-gray-300 rounded text-sm'
-                                />
-                                <button
-                                    onClick={generateRandomSeed}
-                                    className='ml-2 px-2 py-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors text-sm'
-                                >
-                                    随机
-                                </button>
-                            </label>
-                        </div>
-                    </div>
+                    </>
                 )}
             </div>
 
