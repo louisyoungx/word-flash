@@ -15,6 +15,17 @@ function App() {
     const [showSettings, setShowSettings] = useState(false)
     const [isSpeaking, setIsSpeaking] = useState(false)
     const [autoSpeak, setAutoSpeak] = useState(true)
+    const [randomSeed, setRandomSeed] = useState<string>('')
+
+    const generateRandomSeed = () => {
+        const chars =
+            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+        let seed = ''
+        for (let i = 0; i < 8; i++) {
+            seed += chars.charAt(Math.floor(Math.random() * chars.length))
+        }
+        setRandomSeed(seed)
+    }
 
     const formatRemainingTime = (minutes: number): string => {
         if (minutes < 60) {
@@ -27,9 +38,30 @@ function App() {
 
     useEffect(() => {
         // 打乱单词顺序
-        const shuffled = [...words].sort(() => Math.random() - 0.5)
+        const shuffled = [...words]
+        if (randomSeed) {
+            // 使用更好的伪随机数生成算法
+            const seed = randomSeed
+                .split('')
+                .reduce((acc, char) => acc + char.charCodeAt(0), 0)
+            const xorshift = () => {
+                let x = seed
+                x ^= x << 13
+                x ^= x >> 17
+                x ^= x << 5
+                return Math.abs(x) / 2147483647 // 归一化到 [0,1)
+            }
+
+            // Fisher-Yates 洗牌算法
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(xorshift() * (i + 1))
+                ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+            }
+        } else {
+            shuffled.sort(() => Math.random() - 0.5)
+        }
         setShuffledWords(shuffled)
-    }, [])
+    }, [randomSeed])
 
     const handlePrev = useCallback(() => {
         setCurrentIndex(
@@ -163,7 +195,7 @@ function App() {
                     <span className='material-icons'>settings</span>
                 </button>
                 {showSettings && (
-                    <div className='absolute top-full left-0 bg-white rounded-lg shadow-md p-4 min-w-[200px] z-50'>
+                    <div className='absolute top-full left-0 bg-white rounded-lg shadow-md p-4 min-w-[300px] z-50'>
                         <div className='mb-4'>
                             <label className='flex items-center gap-2 text-sm text-gray-700'>
                                 自动播放间隔（秒）:
@@ -202,6 +234,26 @@ function App() {
                                     className='w-4 h-4'
                                 />
                                 自动发音
+                            </label>
+                        </div>
+                        <div>
+                            <label className='flex items-center gap-2 text-sm text-gray-700'>
+                                随机种子:
+                                <input
+                                    type='text'
+                                    value={randomSeed}
+                                    onChange={e =>
+                                        setRandomSeed(e.target.value)
+                                    }
+                                    placeholder='输入随机种子'
+                                    className='w-32 p-1 border border-gray-300 rounded text-sm'
+                                />
+                                <button
+                                    onClick={generateRandomSeed}
+                                    className='ml-2 px-2 py-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors text-sm'
+                                >
+                                    随机
+                                </button>
                             </label>
                         </div>
                     </div>
