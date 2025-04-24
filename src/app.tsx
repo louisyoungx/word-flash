@@ -213,6 +213,25 @@ function App() {
         }
     }, [handlePrev, handleNext, currentIndex, isSpeaking, shuffledWords])
 
+    // 添加鼠标滚轮事件监听
+    useEffect(() => {
+        const handleWheel = (e: WheelEvent) => {
+            e.preventDefault() // 防止页面滚动
+            if (e.deltaY < 0) {
+                // 向下滚动，显示下一个单词
+                handleNext()
+            } else if (e.deltaY > 0) {
+                // 向上滚动，显示上一个单词
+                handlePrev()
+            }
+        }
+
+        window.addEventListener('wheel', handleWheel, { passive: false })
+        return () => {
+            window.removeEventListener('wheel', handleWheel)
+        }
+    }, [handlePrev, handleNext])
+
     // 处理自动发音
     useEffect(() => {
         if (!autoSpeak) return
