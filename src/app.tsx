@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import words from "./public/words.json";
 import { fisherYatesShuffle } from "./utils";
+import classNames from "classnames";
 
 type Word = {
   en: string;
@@ -20,6 +21,14 @@ function App() {
   });
   const [showMeaning, setShowMeaning] = useState(() => {
     const saved = localStorage.getItem("showMeaning");
+    return saved ? saved === "true" : true;
+  });
+  const [enableClickBlankFlip, setEnableClickBlankFlip] = useState(() => {
+    const saved = localStorage.getItem("enableClickBlankFlip");
+    return saved ? saved === "true" : true;
+  });
+  const [enableWheelFlip, setEnableWheelFlip] = useState(() => {
+    const saved = localStorage.getItem("enableWheelFlip");
     return saved ? saved === "true" : true;
   });
   const [showSettings, setShowSettings] = useState(false);
@@ -52,6 +61,17 @@ function App() {
   useEffect(() => {
     localStorage.setItem("showMeaning", showMeaning.toString());
   }, [showMeaning]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "enableClickBlankFlip",
+      enableClickBlankFlip.toString()
+    );
+  }, [enableClickBlankFlip]);
+
+  useEffect(() => {
+    localStorage.setItem("enableWheelFlip", enableWheelFlip.toString());
+  }, [enableWheelFlip]);
 
   useEffect(() => {
     localStorage.setItem("autoSpeak", autoSpeak.toString());
@@ -239,168 +259,225 @@ function App() {
     return <div>Loading...</div>;
   }
 
-  const currentWord = shuffledWords[currentIndex]
+  const currentWord = shuffledWords[currentIndex];
 
   return (
     <div
-      className="bg-white p-8 rounded-xl shadow-md min-w-[400px] max-w-[800px] w-full box-border relative"
-      onWheel={handleWheel}
+      className={classNames(
+        "flex w-screen h-screen items-center justify-center",
+        {
+          "cursor-pointer": enableClickBlankFlip,
+        }
+      )}
+      onWheel={(e) => {
+        if (enableWheelFlip) {
+          handleWheel(e);
+        }
+      }}
+      onClick={() => {
+        if (enableClickBlankFlip) {
+          handleNext();
+        }
+      }}
     >
-      <div className="absolute top-2 left-2">
-        <button
-          onClick={toggleSettings}
-          className="bg-transparent text-gray-400 hover:text-gray-800 hover:scale-110 transition-all cursor-pointer"
-        >
-          <span className="material-icons">settings</span>
-        </button>
-        {showSettings && (
-          <>
-            <div className="fixed inset-0 z-40" onClick={toggleSettings} />
-            <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg p-4 min-w-[320px] z-50 border border-gray-100 animate-fade-in">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm text-gray-700">
-                    自动播放间隔（秒）
-                  </label>
-                  <input
-                    type="number"
-                    value={interval}
-                    onChange={(e) => setInterval(Number(e.target.value))}
-                    min="1"
-                    max="60"
-                    className="w-20 px-2 py-1 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <label className="text-sm text-gray-700">显示中文释义</label>
-                  <button
-                    onClick={() => setShowMeaning((prev) => !prev)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
-                      showMeaning ? "bg-blue-500" : "bg-gray-200"
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        showMeaning ? "translate-x-6" : "translate-x-1"
-                      }`}
-                    />
-                  </button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <label className="text-sm text-gray-700">自动发音</label>
-                  <button
-                    onClick={() => setAutoSpeak((prev) => !prev)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
-                      autoSpeak ? "bg-blue-500" : "bg-gray-200"
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        autoSpeak ? "translate-x-6" : "translate-x-1"
-                      }`}
-                    />
-                  </button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <label className="text-sm text-gray-700">随机种子</label>
-                  <div className="flex items-center gap-2">
+      <div
+        className="bg-white p-8 rounded-xl shadow-md min-w-[400px] max-w-[800px] box-border relative cursor-default"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
+        <div className="absolute top-2 left-2">
+          <button
+            onClick={toggleSettings}
+            className="bg-transparent text-gray-400 hover:text-gray-800 hover:scale-110 transition-all cursor-pointer"
+          >
+            <span className="material-icons">settings</span>
+          </button>
+          {showSettings && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={toggleSettings} />
+              <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg p-4 min-w-[320px] z-50 border border-gray-100 animate-fade-in">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm text-gray-700">
+                      自动播放间隔（秒）
+                    </label>
                     <input
-                      type="text"
-                      value={randomSeed}
-                      onChange={(e) => setRandomSeed(e.target.value)}
-                      placeholder="输入种子"
-                      className="w-24 px-2 py-1 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      type="number"
+                      value={interval}
+                      onChange={(e) => setInterval(Number(e.target.value))}
+                      min="1"
+                      max="60"
+                      className="w-20 px-2 py-1 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm text-gray-700">
+                      显示中文释义
+                    </label>
                     <button
-                      onClick={generateRandomSeed}
-                      className="p-1.5 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors cursor-pointer"
-                      title="生成随机种子"
+                      onClick={() => setShowMeaning((prev) => !prev)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
+                        showMeaning ? "bg-blue-500" : "bg-gray-200"
+                      }`}
                     >
-                      <span className="material-icons text-sm">refresh</span>
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          showMeaning ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm text-gray-700">
+                      点击空白区域翻页
+                    </label>
+                    <button
+                      onClick={() => setEnableClickBlankFlip((prev) => !prev)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
+                        enableClickBlankFlip ? "bg-blue-500" : "bg-gray-200"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          enableClickBlankFlip
+                            ? "translate-x-6"
+                            : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm text-gray-700">滚轮翻页</label>
+                    <button
+                      onClick={() => setEnableWheelFlip((prev) => !prev)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
+                        enableWheelFlip ? "bg-blue-500" : "bg-gray-200"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          enableWheelFlip ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm text-gray-700">自动发音</label>
+                    <button
+                      onClick={() => setAutoSpeak((prev) => !prev)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
+                        autoSpeak ? "bg-blue-500" : "bg-gray-200"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          autoSpeak ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm text-gray-700">随机种子</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={randomSeed}
+                        onChange={(e) => setRandomSeed(e.target.value)}
+                        placeholder="输入种子"
+                        className="w-24 px-2 py-1 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                      <button
+                        onClick={generateRandomSeed}
+                        className="p-1.5 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors cursor-pointer"
+                        title="生成随机种子"
+                      >
+                        <span className="material-icons text-sm">refresh</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="pt-2 border-t border-gray-100">
+                    <button
+                      onClick={resetAllSettings}
+                      className="w-full py-2 px-4 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors text-sm flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <span className="material-icons text-sm">delete</span>
+                      重置全部设置
                     </button>
                   </div>
                 </div>
-                <div className="pt-2 border-t border-gray-100">
-                  <button
-                    onClick={resetAllSettings}
-                    className="w-full py-2 px-4 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors text-sm flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <span className="material-icons text-sm">delete</span>
-                    重置全部设置
-                  </button>
-                </div>
               </div>
-            </div>
-          </>
-        )}
-      </div>
-
-      <div className="text-4xl font-bold text-center mb-4 break-words px-4 mt-4 relative">
-        <div className="flex items-center justify-center">
-          <span>{currentWord.en}</span>
+            </>
+          )}
         </div>
-        <button
-          onClick={speakWord}
-          className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800 hover:scale-110 transition-all flex items-center justify-center w-10 h-10 cursor-pointer"
-        >
-          <span className="material-icons">
-            {isSpeaking ? "graphic_eq" : "volume_up"}
-          </span>
-        </button>
-      </div>
-      {showMeaning && (
-        <div className="text-xl text-gray-600 text-center mb-8 break-words px-4 flex items-center justify-center">
-          {currentWord.zh}
-        </div>
-      )}
 
-      <div className="flex gap-4 justify-center mb-4 flex-wrap">
-        <button
-          onClick={handlePrev}
-          className="p-3 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 hover:scale-105 transition-all flex items-center justify-center w-12 h-12 cursor-pointer"
-        >
-          <span className="material-icons">chevron_left</span>
-        </button>
-        <button
-          onClick={toggleAutoPlay}
-          className="p-3 rounded-full bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 transition-all flex items-center justify-center w-12 h-12 cursor-pointer"
-        >
-          <span className="material-icons">
-            {autoPlay ? "pause" : "play_arrow"}
-          </span>
-        </button>
-        <button
-          onClick={handleNext}
-          className="p-3 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 hover:scale-105 transition-all flex items-center justify-center w-12 h-12 cursor-pointer"
-        >
-          <span className="material-icons">chevron_right</span>
-        </button>
-      </div>
-      <div className="flex justify-between items-center mb-2 text-sm text-gray-600">
-        <span>
-          {Math.round(((currentIndex + 1) / shuffledWords.length) * 100)}%
-        </span>
-        {autoPlay && (
-          <span className="text-gray-600">
-            预计:{" "}
-            {formatRemainingTime(
-              Math.ceil(
-                ((shuffledWords.length - currentIndex - 1) * interval) / 60
-              )
-            )}
-          </span>
+        <div className="text-4xl font-bold text-center mb-4 break-words px-4 mt-4 relative">
+          <div className="flex items-center justify-center">
+            <span>{currentWord.en}</span>
+          </div>
+          <button
+            onClick={speakWord}
+            className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800 hover:scale-110 transition-all flex items-center justify-center w-10 h-10 cursor-pointer"
+          >
+            <span className="material-icons">
+              {isSpeaking ? "graphic_eq" : "volume_up"}
+            </span>
+          </button>
+        </div>
+        {showMeaning && (
+          <div className="text-xl text-gray-600 text-center mb-8 break-words px-4 flex items-center justify-center">
+            {currentWord.zh}
+          </div>
         )}
-        <span>
-          {currentIndex + 1}/{shuffledWords.length}
-        </span>
-      </div>
-      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-        <div
-          className="h-full bg-blue-600 transition-all duration-300"
-          style={{
-            width: `${((currentIndex + 1) / shuffledWords.length) * 100}%`,
-          }}
-        />
+
+        <div className="flex gap-4 justify-center mb-4 flex-wrap">
+          <button
+            onClick={handlePrev}
+            className="p-3 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 hover:scale-105 transition-all flex items-center justify-center w-12 h-12 cursor-pointer"
+          >
+            <span className="material-icons">chevron_left</span>
+          </button>
+          <button
+            onClick={toggleAutoPlay}
+            className="p-3 rounded-full bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 transition-all flex items-center justify-center w-12 h-12 cursor-pointer"
+          >
+            <span className="material-icons">
+              {autoPlay ? "pause" : "play_arrow"}
+            </span>
+          </button>
+          <button
+            onClick={handleNext}
+            className="p-3 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 hover:scale-105 transition-all flex items-center justify-center w-12 h-12 cursor-pointer"
+          >
+            <span className="material-icons">chevron_right</span>
+          </button>
+        </div>
+        <div className="flex justify-between items-center mb-2 text-sm text-gray-600">
+          <span>
+            {Math.round(((currentIndex + 1) / shuffledWords.length) * 100)}%
+          </span>
+          {autoPlay && (
+            <span className="text-gray-600">
+              预计:{" "}
+              {formatRemainingTime(
+                Math.ceil(
+                  ((shuffledWords.length - currentIndex - 1) * interval) / 60
+                )
+              )}
+            </span>
+          )}
+          <span>
+            {currentIndex + 1}/{shuffledWords.length}
+          </span>
+        </div>
+        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-blue-600 transition-all duration-300"
+            style={{
+              width: `${((currentIndex + 1) / shuffledWords.length) * 100}%`,
+            }}
+          />
+        </div>
       </div>
     </div>
   );
