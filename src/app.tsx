@@ -75,6 +75,7 @@ function App() {
             seed += chars.charAt(Math.floor(Math.random() * chars.length))
         }
         setRandomSeed(seed)
+        setCurrentIndex(0)
     }
 
     const formatRemainingTime = (minutes: number): string => {
@@ -88,27 +89,27 @@ function App() {
 
     useEffect(() => {
         // 打乱单词顺序
-        const shuffled = [...words]
+        const shuffled = words.slice().filter(word => word.en && word.zh)
         if (randomSeed) {
-            // 使用更好的伪随机数生成算法
+            // 使用seed生成确定性随机序列
             const seed = randomSeed
                 .split('')
                 .reduce((acc, char) => acc + char.charCodeAt(0), 0)
-            const xorshift = () => {
-                let x = seed
-                x ^= x << 13
-                x ^= x >> 17
-                x ^= x << 5
-                return Math.abs(x) / 2147483647 // 归一化到 [0,1)
-            }
-
+            
             // Fisher-Yates 洗牌算法
             for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(xorshift() * (i + 1))
+                // 使用seed生成确定性的随机数
+                const j = Math.floor((i + 1) * ((Math.sin(seed + i) * 10000) % 1))
                 ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
             }
         } else {
-            shuffled.sort(() => Math.random() - 0.5)
+            // 对于没有种子的情况使用Web Crypto API
+            const array = new Uint32Array(shuffled.length)
+            crypto.getRandomValues(array)
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor((array[i] / 0xFFFFFFFF) * (i + 1))
+                ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+            }
         }
         setShuffledWords(shuffled)
     }, [randomSeed])
