@@ -283,31 +283,46 @@ function App() {
   const currentWord = shuffledWords[currentIndex];
 
   return (
-    <div
-      className={classNames(
-        "flex w-screen h-screen items-center justify-center",
-        {
-          "cursor-pointer": enableClickBlankFlip,
-        }
-      )}
-      onWheel={(e) => {
-        if (enableWheelFlip) {
-          handleWheelFlip(e);
-        }
-      }}
-      onClick={(e) => {
-        if (enableClickBlankFlip) {
-          e.preventDefault();
-          handleNext();
-        }
-      }}
-    >
-      <div
-        className="absolute bg-white p-8 rounded-xl shadow-md min-w-[400px] max-w-[800px] box-border cursor-default"
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
-      >
+    <>
+      <>
+        <div
+          className={classNames(
+            "absolute top-0 left-0 flex w-1/3 h-full items-center justify-center",
+            {
+              "cursor-pointer": enableClickBlankFlip,
+            }
+          )}
+          onWheel={(e) => {
+            if (enableWheelFlip) {
+              handleWheelFlip(e);
+            }
+          }}
+          onClick={() => {
+            if (enableClickBlankFlip) {
+              handlePrev();
+            }
+          }}
+        />
+        <div
+          className={classNames(
+            "absolute top-0 right-0 flex w-2/3 h-full items-center justify-center",
+            {
+              "cursor-pointer": enableClickBlankFlip,
+            }
+          )}
+          onWheel={(e) => {
+            if (enableWheelFlip) {
+              handleWheelFlip(e);
+            }
+          }}
+          onClick={() => {
+            if (enableClickBlankFlip) {
+              handleNext();
+            }
+          }}
+        />
+      </>
+      <div className="absolute top-1/2 left-1/2 -translate-1/2 bg-white p-8 rounded-xl shadow-md min-w-[400px] max-w-[800px] box-border cursor-default">
         <div className="absolute top-2 left-2">
           <button
             onClick={toggleSettings}
@@ -497,7 +512,7 @@ function App() {
           />
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
