@@ -261,7 +261,7 @@ function App() {
         return <div>Loading...</div>
     }
 
-    const currentWord = shuffledWords[currentIndex]
+    const currentWord = shuffledWords[currentIndex] || { en: '已完成', zh: '' }
 
     return (
         <div
