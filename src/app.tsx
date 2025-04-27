@@ -3,6 +3,17 @@ import words from "./public/words.json";
 import { fisherYatesShuffle } from "./utils";
 import classNames from "classnames";
 import { isAppleSystem } from "./constant";
+import {
+  GraphicEq as GraphicEqIcon,
+  VolumeUp as VolumeUpIcon,
+  Settings as SettingsIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+  Pause as PauseIcon,
+  PlayArrow as PlayArrowIcon,
+  Refresh as RefreshIcon,
+  Delete as DeleteIcon,
+} from "@mui/icons-material";
 
 type Word = {
   en: string;
@@ -302,7 +313,7 @@ function App() {
             onClick={toggleSettings}
             className="bg-transparent text-gray-400 hover:text-gray-800 hover:scale-110 transition-all cursor-pointer"
           >
-            <span className="material-icons">settings</span>
+            <SettingsIcon />
           </button>
           {showSettings && (
             <>
@@ -403,7 +414,7 @@ function App() {
                         className="p-1.5 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors cursor-pointer"
                         title="生成随机种子"
                       >
-                        <span className="material-icons text-sm">refresh</span>
+                        <RefreshIcon />
                       </button>
                     </div>
                   </div>
@@ -412,7 +423,7 @@ function App() {
                       onClick={resetAllSettings}
                       className="w-full py-2 px-4 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors text-sm flex items-center justify-center gap-2 cursor-pointer"
                     >
-                      <span className="material-icons text-sm">delete</span>
+                      <DeleteIcon />
                       重置全部设置
                     </button>
                   </div>
@@ -430,9 +441,7 @@ function App() {
             onClick={speakWord}
             className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800 hover:scale-110 transition-all flex items-center justify-center w-10 h-10 cursor-pointer"
           >
-            <span className="material-icons">
-              {isSpeaking ? "graphic_eq" : "volume_up"}
-            </span>
+            {isSpeaking ? <GraphicEqIcon /> : <VolumeUpIcon />}
           </button>
         </div>
         {showMeaning && (
@@ -446,21 +455,19 @@ function App() {
             onClick={handlePrev}
             className="p-3 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 hover:scale-105 transition-all flex items-center justify-center w-12 h-12 cursor-pointer"
           >
-            <span className="material-icons">chevron_left</span>
+            <ChevronLeftIcon />
           </button>
           <button
             onClick={toggleAutoPlay}
             className="p-3 rounded-full bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 transition-all flex items-center justify-center w-12 h-12 cursor-pointer"
           >
-            <span className="material-icons">
-              {autoPlay ? "pause" : "play_arrow"}
-            </span>
+            {autoPlay ? <PauseIcon /> : <PlayArrowIcon />}
           </button>
           <button
             onClick={handleNext}
             className="p-3 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 hover:scale-105 transition-all flex items-center justify-center w-12 h-12 cursor-pointer"
           >
-            <span className="material-icons">chevron_right</span>
+            <ChevronRightIcon />
           </button>
         </div>
         <div className="flex justify-between items-center mb-2 text-sm text-gray-600">
