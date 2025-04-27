@@ -298,6 +298,9 @@ function App() {
             }
           }}
           onClick={() => {
+            if (showSettings) {
+              return setShowSettings(false);
+            }
             if (enableClickBlankFlip) {
               handlePrev();
             }
@@ -316,6 +319,9 @@ function App() {
             }
           }}
           onClick={() => {
+            if (showSettings) {
+              return setShowSettings(false);
+            }
             if (enableClickBlankFlip) {
               handleNext();
             }
