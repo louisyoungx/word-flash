@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import words from "./public/words.json";
 import { fisherYatesShuffle } from "./utils";
 import classNames from "classnames";
+import { isAppleSystem } from "./constant";
 
 type Word = {
   en: string;
@@ -212,7 +213,7 @@ function App() {
     };
   }, [handlePrev, handleNext, currentIndex, isSpeaking, shuffledWords]);
 
-  const handleWheel = useCallback(
+  const handleWheelFlip = useCallback(
     (e: React.WheelEvent) => {
       if (e.deltaX > 0) {
         // 向右横向滚动，触发发音
@@ -223,9 +224,18 @@ function App() {
       }
       // 垂直滚动，切换单词
       if (e.deltaY < 0) {
-        handleNext();
+        if (isAppleSystem) {
+          // 苹果系统滚轮反向
+          handleNext();
+        } else {
+          handlePrev();
+        }
       } else if (e.deltaY > 0) {
-        handlePrev();
+        if (isAppleSystem) {
+          handlePrev();
+        } else {
+          handleNext();
+        }
       }
     },
     [handleNext, handlePrev, speakWord, isSpeaking]
@@ -271,7 +281,7 @@ function App() {
       )}
       onWheel={(e) => {
         if (enableWheelFlip) {
-          handleWheel(e);
+          handleWheelFlip(e);
         }
       }}
       onClick={() => {
