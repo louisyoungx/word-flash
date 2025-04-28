@@ -226,6 +226,9 @@ function App() {
 
   const handleWheelFlip = useCallback(
     (e: React.WheelEvent) => {
+      if (!enableWheelFlip || showSettings) {
+        return;
+      }
       if (e.deltaX > 0) {
         // 向右横向滚动，触发发音
         if (!isSpeaking) {
@@ -249,7 +252,14 @@ function App() {
         }
       }
     },
-    [handleNext, handlePrev, speakWord, isSpeaking],
+    [
+      handleNext,
+      handlePrev,
+      speakWord,
+      isSpeaking,
+      showSettings,
+      enableWheelFlip,
+    ],
   );
 
   // 处理自动发音
@@ -292,11 +302,7 @@ function App() {
               "cursor-pointer": enableClickBlankFlip,
             },
           )}
-          onWheel={(e) => {
-            if (enableWheelFlip) {
-              handleWheelFlip(e);
-            }
-          }}
+          onWheel={handleWheelFlip}
           onClick={() => {
             if (showSettings) {
               return setShowSettings(false);
@@ -313,11 +319,7 @@ function App() {
               "cursor-pointer": enableClickBlankFlip,
             },
           )}
-          onWheel={(e) => {
-            if (enableWheelFlip) {
-              handleWheelFlip(e);
-            }
-          }}
+          onWheel={handleWheelFlip}
           onClick={() => {
             if (showSettings) {
               return setShowSettings(false);
@@ -328,7 +330,10 @@ function App() {
           }}
         />
       </>
-      <div className="absolute top-1/2 left-1/2 -translate-1/2 bg-white p-8 rounded-xl shadow-md min-w-[400px] max-w-[800px] box-border cursor-default">
+      <div
+        className="absolute top-1/2 left-1/2 -translate-1/2 bg-white p-8 rounded-xl shadow-md min-w-[400px] max-w-[800px] box-border cursor-default"
+        onWheel={handleWheelFlip}
+      >
         <div className="absolute top-2 left-2">
           <button
             onClick={toggleSettings}
