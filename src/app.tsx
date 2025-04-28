@@ -77,7 +77,7 @@ function App() {
   useEffect(() => {
     localStorage.setItem(
       "enableClickBlankFlip",
-      enableClickBlankFlip.toString()
+      enableClickBlankFlip.toString(),
     );
   }, [enableClickBlankFlip]);
 
@@ -128,7 +128,7 @@ function App() {
 
   const handlePrev = useCallback(() => {
     setCurrentIndex(
-      (prev) => (prev - 1 + shuffledWords.length) % shuffledWords.length
+      (prev) => (prev - 1 + shuffledWords.length) % shuffledWords.length,
     );
   }, [shuffledWords.length]);
 
@@ -161,7 +161,7 @@ function App() {
     const voices = window.speechSynthesis.getVoices();
     const maleVoice = voices.find(
       (voice) =>
-        voice.lang === "en-US" && voice.name.toLowerCase().includes("male")
+        voice.lang === "en-US" && voice.name.toLowerCase().includes("male"),
     );
     if (maleVoice) {
       utterance.voice = maleVoice;
@@ -201,7 +201,7 @@ function App() {
         const voices = window.speechSynthesis.getVoices();
         const maleVoice = voices.find(
           (voice) =>
-            voice.lang === "en-US" && voice.name.toLowerCase().includes("male")
+            voice.lang === "en-US" && voice.name.toLowerCase().includes("male"),
         );
         if (maleVoice) {
           utterance.voice = maleVoice;
@@ -249,7 +249,7 @@ function App() {
         }
       }
     },
-    [handleNext, handlePrev, speakWord, isSpeaking]
+    [handleNext, handlePrev, speakWord, isSpeaking],
   );
 
   // 处理自动发音
@@ -290,7 +290,7 @@ function App() {
             "absolute top-0 left-0 flex w-1/3 h-full items-center justify-center",
             {
               "cursor-pointer": enableClickBlankFlip,
-            }
+            },
           )}
           onWheel={(e) => {
             if (enableWheelFlip) {
@@ -311,7 +311,7 @@ function App() {
             "absolute top-0 right-0 flex w-2/3 h-full items-center justify-center",
             {
               "cursor-pointer": enableClickBlankFlip,
-            }
+            },
           )}
           onWheel={(e) => {
             if (enableWheelFlip) {
@@ -500,8 +500,8 @@ function App() {
               预计:{" "}
               {formatRemainingTime(
                 Math.ceil(
-                  ((shuffledWords.length - currentIndex - 1) * interval) / 60
-                )
+                  ((shuffledWords.length - currentIndex - 1) * interval) / 60,
+                ),
               )}
             </span>
           )}

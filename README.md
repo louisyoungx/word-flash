@@ -22,22 +22,26 @@
 ## 安装
 
 1. 克隆项目
+
 ```bash
 git clone https://github.com/louisyoungx/word-flash.git
 cd word-flash
 ```
 
 2. 安装依赖
+
 ```bash
 pnpm install
 ```
 
 3. 启动开发服务器
+
 ```bash
 pnpm dev
 ```
 
 4. 构建生产版本
+
 ```bash
 pnpm build
 ```
@@ -61,4 +65,4 @@ pnpm build
 
 ## 许可证
 
-MIT 
+MIT
